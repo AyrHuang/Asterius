@@ -1,2 +1,9 @@
-# Asterius
-Component of NET request and response processor. Which implemented with .NetCore
+Asterius
+===
+
+# Description
+Component of NET works request and response processor.
+Which implemented and dependence on .NetCore.
+
+# NuGet
+- NLog
