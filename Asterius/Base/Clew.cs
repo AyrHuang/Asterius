@@ -3,7 +3,7 @@ using System;
 
 namespace Asterius.Base
 {
-    public static class Log
+    public static class Clew
     {
         public const string Name = "Asterius";
 
