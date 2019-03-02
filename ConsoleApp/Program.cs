@@ -8,9 +8,10 @@ namespace ConsoleApp
     {
         private static void Main(string[] args)
         {
-            Service a = new Service(
+            Entrance a = new Entrance(
                 "127.0.0.1",
-                8080
+                8080,
+                null
             );
 
             Clew.Info("QAQ");
