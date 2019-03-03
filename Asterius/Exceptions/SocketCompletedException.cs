@@ -3,18 +3,18 @@ using System.Runtime.Serialization;
 
 namespace Asterius.Exceptions
 {
-    public class SocketAcceptorException : Exception
+    public class SocketCompletedException : Exception
     {
-        public SocketAcceptorException() : base()
+        public SocketCompletedException() : base()
         {
         }
 
-        public SocketAcceptorException(string message) : base(message)
+        public SocketCompletedException(string message) : base(message)
         {
         }
 
 
-        public SocketAcceptorException(
+        public SocketCompletedException(
             string message,
             Exception innerException
         ) : base(
@@ -24,7 +24,7 @@ namespace Asterius.Exceptions
         {
         }
         
-        protected SocketAcceptorException(
+        protected SocketCompletedException(
             SerializationInfo info,
             StreamingContext context
         ) : base(

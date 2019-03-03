@@ -3,6 +3,7 @@ using Asterius.Exceptions;
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace Asterius
 {
@@ -13,7 +14,7 @@ namespace Asterius
         private Action<Traveler> _actionOfAcceptorCallback = null;
 
         /// <summary>
-        /// Implement of service which will wait accept socket from target address on target port.
+        /// Implement of service which will wait accept socket from Host:Port.
         /// </summary>
         /// <param name="hostOfIPv4">Host of address, supported IPv4 Only</param>
         /// <param name="portOfIPv4">Port of address, supported IPv4 Only</param>
@@ -81,7 +82,11 @@ namespace Asterius
             );
         }
 
-        private void OnAcceptComplete(SocketAsyncEventArgs socketAsyncEventArgs)
+        /// <summary>
+        /// Inovke accept active when need complete process
+        /// </summary>
+        /// <param name="o">Object that should be [SocketAsyncEventArgs]</param>
+        private void OnAcceptComplete(object o)
         {
             // If [Socket] was null, it means that the service was Disposed
             if (null == _socketOfAcceptor)
@@ -89,7 +94,8 @@ namespace Asterius
                 return;
             }
 
-            switch(socketAsyncEventArgs.SocketError)
+            SocketAsyncEventArgs socketAsyncEventArgs = o as SocketAsyncEventArgs;
+            switch (socketAsyncEventArgs.SocketError)
             {
                 case SocketError.Success:
                     {
@@ -101,7 +107,6 @@ namespace Asterius
 
                         try
                         {
-                            // Think a good way to work in thread
                             _actionOfAcceptorCallback(
                                 traveler
                             );
@@ -112,6 +117,14 @@ namespace Asterius
                                 exception
                             );
                         }
+
+                        // If [Socket] wa sset as null, it means that the service was Disposed
+                        if (null == _socketOfAcceptor)
+                        {
+                            return;
+                        }
+
+                        OnAcceptAsync();
                     }
                     break;
                 default:
@@ -124,21 +137,21 @@ namespace Asterius
             }
         }
 
-        private void OnCompleted(object sender, SocketAsyncEventArgs e)
+        private void OnCompleted(object sender, SocketAsyncEventArgs socketAsyncEventArgs)
         {
-            switch (e.LastOperation)
+            switch (socketAsyncEventArgs.LastOperation)
             {
                 case SocketAsyncOperation.Accept:
                     {
-                        // Think a good way to work on thread.
-                        OnAcceptComplete(
-                            e
+                        ThreadPool.QueueUserWorkItem(
+                            OnAcceptComplete,
+                            socketAsyncEventArgs
                         );
                     }
                     break;
                 default:
-                    throw new SocketAcceptorException(
-                        $"Error: {e.LastOperation} received on completed"
+                    throw new SocketCompletedException(
+                        $"Error: {socketAsyncEventArgs.LastOperation} received on completed of acceptor"
                     );
             }
         }
