@@ -1,6 +1,7 @@
 ﻿using Asterius;
 using Asterius.Base;
 using System;
+using System.Threading;
 
 namespace ConsoleApp
 {
@@ -15,6 +16,16 @@ namespace ConsoleApp
             );
 
             Clew.Info("QAQ");
+
+            Traveler b = new Traveler(
+                "127.0.0.1",
+                8080
+            );
+
+            while(true)
+            {
+                Thread.Sleep(10);
+            }
         }
     }
 }

@@ -3,7 +3,7 @@ using Asterius.Exceptions;
 using System;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
+using System.Threading.Tasks;
 
 namespace Asterius
 {
@@ -107,7 +107,7 @@ namespace Asterius
 
                         try
                         {
-                            _actionOfAcceptorCallback(
+                            _actionOfAcceptorCallback.Invoke(
                                 traveler
                             );
                         }
@@ -143,7 +143,7 @@ namespace Asterius
             {
                 case SocketAsyncOperation.Accept:
                     {
-                        ThreadPool.QueueUserWorkItem(
+                        Task.Factory.StartNew(
                             OnAcceptComplete,
                             socketAsyncEventArgs
                         );
