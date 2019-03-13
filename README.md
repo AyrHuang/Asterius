@@ -1,9 +1,16 @@
 Asterius
 ===
 
-# Description
-Component of NET works request and response processor.
-Which implemented and dependence on .NetCore.
+Supported Platforms
+-------------------
+- Use ***[.NET Core](https://dotnet.github.io/)***
+    - [x] Windows
+    - [x] Linux
+    - [x] MacOX
 
-# NuGet
-- NLog
+PreRequisites
+-------------
+- [ ] ***[Install .NET Core](https://www.microsoft.com/net/core)*** .
+
+
+

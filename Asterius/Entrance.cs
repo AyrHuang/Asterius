@@ -1,5 +1,6 @@
 ﻿using Asterius.Base;
 using Asterius.Exceptions;
+using Microsoft.IO;
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -9,16 +10,17 @@ namespace Asterius
 {
     public class Entrance : IDisposable
     {
-        private Socket _socketOfAcceptor = null;
+        private Socket _socket = null;
         private readonly SocketAsyncEventArgs _socketAsyncEventArgs = new SocketAsyncEventArgs();
-        private Action<Traveler> _actionOfAcceptorCallback = null;
+        private Action<Route> _actionOfAcceptorCallback = null;
+        private RecyclableMemoryStreamManager _recyclableMemoryStreamManager = new RecyclableMemoryStreamManager();
 
         /// <summary>
         /// Implement of service which will wait accept socket from Host:Port.
         /// </summary>
         /// <param name="hostOfIPv4">Host of address, supported IPv4 Only</param>
         /// <param name="portOfIPv4">Port of address, supported IPv4 Only</param>
-        public Entrance(string hostOfIPv4, int portOfIPv4, Action<Traveler> actionOfAcceptorCallback, int maxPendingCount = 10)
+        public Entrance(string hostOfIPv4, int portOfIPv4, Action<Route> actionOfAcceptorCallback, int maxPendingCount = 10)
         {
             // Convert string to IPAddress
             IPAddress ipAddress = IPAddress.Parse(
@@ -31,24 +33,24 @@ namespace Asterius
             );
 
             // Create a Socket which will accept IPv4
-            _socketOfAcceptor = new Socket(
-                socketType:    SocketType.Stream,
+            _socket = new Socket(
+                socketType: SocketType.Stream,
                 addressFamily: AddressFamily.InterNetwork,
-                protocolType:  ProtocolType.Tcp
+                protocolType: ProtocolType.Tcp
             );
             // Set SocketOptionLevel.Socket as following active
             //   - SocketOptionName.ReuseAddress: true
-            _socketOfAcceptor.SetSocketOption(
+            _socket.SetSocketOption(
                 SocketOptionLevel.Socket,
                 SocketOptionName.ReuseAddress,
                 true
             );
 
             // Bind to IPAddress with constructor's parameters
-            _socketOfAcceptor.Bind(
+            _socket.Bind(
                 ipEndPoint
             );
-            _socketOfAcceptor.Listen(
+            _socket.Listen(
                 maxPendingCount
             );
 
@@ -59,6 +61,26 @@ namespace Asterius
             OnAcceptAsync();
         }
 
+        public Traveler Create(string hostOfIPv4, int portOfIPv4)
+        {
+            IPAddress ipAddress = IPAddress.Parse(
+                hostOfIPv4
+            );
+            IPEndPoint ipEndPoint =new IPEndPoint(
+                ipAddress,
+                portOfIPv4
+            );
+
+            Route route = new Route(
+                ipEndPoint,
+                _recyclableMemoryStreamManager
+            );
+
+            // Record [Route] for manager
+            // Create [Traveler] for manager
+            return null;
+        }
+
         /// <summary>
         /// Inovke accept active
         /// </summary>
@@ -66,7 +88,7 @@ namespace Asterius
         {
             // Reset Socket [SocketAsyncEventArgs] for duplicate use it.
             _socketAsyncEventArgs.AcceptSocket = null;
-            bool isAcceptAsyncSuccess = _socketOfAcceptor.AcceptAsync(
+            bool isAcceptAsyncSuccess = _socket.AcceptAsync(
                 _socketAsyncEventArgs
             );
             // If [Socket.AcceptAsync] invoke with parameter [SocketAsyncEventArgs], it will send back a [Boolean] to feedback result of active
@@ -89,7 +111,7 @@ namespace Asterius
         private void OnAcceptComplete(object o)
         {
             // If [Socket] was null, it means that the service was Disposed
-            if (null == _socketOfAcceptor)
+            if (null == _socket)
             {
                 return;
             }
@@ -99,8 +121,9 @@ namespace Asterius
             {
                 case SocketError.Success:
                     {
-                        Traveler traveler = new Traveler(
-                            socketAsyncEventArgs.AcceptSocket
+                        Route route = new Route(
+                            socketAsyncEventArgs.AcceptSocket,
+                            _recyclableMemoryStreamManager
                         );
 
                         // Record [Traveler] for manager
@@ -108,7 +131,7 @@ namespace Asterius
                         try
                         {
                             _actionOfAcceptorCallback.Invoke(
-                                traveler
+                                route
                             );
                         }
                         catch (Exception exception)
@@ -119,7 +142,7 @@ namespace Asterius
                         }
 
                         // If [Socket] wa sset as null, it means that the service was Disposed
-                        if (null == _socketOfAcceptor)
+                        if (null == _socket)
                         {
                             return;
                         }
@@ -158,8 +181,8 @@ namespace Asterius
 
         public void Dispose()
         {
-            _socketOfAcceptor?.Close();
-            _socketOfAcceptor = null;
+            _socket?.Close();
+            _socket = null;
 
             _socketAsyncEventArgs.Dispose();
         }
