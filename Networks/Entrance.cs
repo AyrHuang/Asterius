@@ -1,12 +1,12 @@
-﻿using Asterius.Base;
-using Asterius.Exceptions;
-using Microsoft.IO;
+﻿using Microsoft.IO;
+using Networks.Exceptions;
 using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using Utilities;
 
-namespace Asterius
+namespace Networks
 {
     public class Entrance : IDisposable
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace Asterius.Exceptions
+namespace Networks.Exceptions
 {
     public class SocketCompletedException : Exception
     {

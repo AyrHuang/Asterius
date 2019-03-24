@@ -1,12 +1,18 @@
 ﻿using NLog;
 using System;
 
-namespace Asterius.Base
+namespace Utilities
 {
+    /// <summary>
+    /// This static class which was the alias of <see cref="Logger"/>. It just seald some method for static use.
+    /// </summary>
     public static class Clew
     {
-        public const string Name = "Asterius";
+        public const string Name = "Utilities";
 
+        /// <summary>
+        /// Outter instance of <see cref="Logger"/>.  User could give custom instance for use.
+        /// </summary>
         public static ILogger Instance { get; set; }
         private static ILogger _Instance = null;
         private static ILogger _Forwarder

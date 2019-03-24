@@ -1,4 +1,4 @@
-﻿using Asterius.Exceptions;
+﻿using Networks.Exceptions;
 using Microsoft.IO;
 using System;
 using System.IO;
@@ -6,7 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
-namespace Asterius
+namespace Networks
 {
     public class Route : IDisposable
     {
@@ -71,9 +71,9 @@ namespace Asterius
 
             // Just like setting of [Entrance] processor
             _socket = new Socket(
-                AddressFamily.InterNetwork,
-                SocketType.Stream,
-                ProtocolType.Tcp
+                addressFamily: AddressFamily.InterNetwork,
+                socketType: SocketType.Stream,
+                protocolType: ProtocolType.Tcp
             );
             _socket.NoDelay = true;
 

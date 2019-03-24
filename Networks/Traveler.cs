@@ -1,4 +1,4 @@
-﻿namespace Asterius
+﻿namespace Networks
 {
     public class Traveler
     {
